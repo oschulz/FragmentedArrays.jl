@@ -1,5 +1,6 @@
-using FragmentedArrays
-using Base.Test
+# This file is a part of FragmentedArrays.jl, licensed under the MIT License (MIT).
 
-# write your own tests here
-@test 1 == 2
+@Base.Test.testset "Package FragmentedArrays" begin
+    include.([
+    ])
+end
