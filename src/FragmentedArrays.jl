@@ -8,6 +8,7 @@ include.([
     "funcdecls.jl",
     "util.jl",
     "recyclingarray.jl",
+    "fragmentedarray.jl",
 ])
 
 end # module
