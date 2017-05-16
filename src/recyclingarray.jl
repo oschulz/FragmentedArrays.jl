@@ -4,27 +4,37 @@ export RecyclingArray
 
 type RecyclingArray{ArrayT<:DenseArray,T,N} <: DenseArray{T,N}
     data::ArrayT
-    first_dims_n::Int  # prod(_tuple_replace_at(size(data), Val{N}, 1))
+    first_dims_n::Int
     n_free_front::Int
     n_free_back::Int
     extendable::Bool
-
-    function (::Type{RecyclingArray{ArrayT}}){ArrayT<:DenseArray}(
-        data::ArrayT, shift_lastdim::Int, pop_lastdim::Int, extendable::Bool
-    )
-        N = ndims(ArrayT)
-        T = eltype(ArrayT)
-        extendable && N != 1 && throw(ArgumentError("multi-dimensional RecyclingArray cannot be extendable"))
-        first_dims_n = prod(_tuple_replace_at(size(data), Val{N}, 1))
-        shift_lastdim < 0 && throw(ArgumentError("shift_lastdim must be ≥ 0"))
-        pop_lastdim < 0 && throw(ArgumentError("pop_lastdim must be ≥ 0"))
-        shift_lastdim + pop_lastdim > size(data, N) && throw(ArgumentError("sum of shift_lastdim and pop_lastdim must not exceed data array size in last dimension"))
-        new{ArrayT,T,N}(data, first_dims_n, shift_lastdim, pop_lastdim, extendable)
-    end
 end
 
-RecyclingArray{T,N}(data::AbstractArray{T, N}; shift_lastdim::Int = 0, pop_lastdim::Int = 0, extendable::Bool = (N == 1)) =
-    RecyclingArray{typeof(data)}(data, shift_lastdim, pop_lastdim, extendable)
+
+function (::Type{RecyclingArray{ArrayT,T,N}}){ArrayT<:DenseArray,T,N}(
+    dims::Integer...;
+    reserve_front::Int = 0, reserve_back::Int = 0, extendable::Bool = (ndims(ArrayT) == 1)
+)
+    T != eltype(ArrayT) && throw(ArgumentError("type $T doesn't match element type of $ArrayT"))
+    N != ndims(ArrayT) && throw(ArgumentError("number of dimensions $N doesn't match dimensionality of $ArrayT"))
+    N_dims = length(dims)
+    N_dims != 0 && N_dims != N && throw(ArgumentError("number or size arguments and array dimensionality don't match"))
+    extendable && N != 1 && throw(ArgumentError("multi-dimensional RecyclingArray cannot be extendable"))
+    reserve_front < 0 && throw(ArgumentError("reserve_front must be ≥ 0"))
+    reserve_back < 0 && throw(ArgumentError("reserve_back must be ≥ 0"))
+    initial_size = _extend_tuple(dims, Val{N}, 0)
+    data_size = _tuple_replace_at(initial_size, Val{N}, initial_size[N] + reserve_front + reserve_back)
+    first_dims_n = prod(_tuple_replace_at(initial_size, Val{N}, 1))
+    RecyclingArray{ArrayT,T,N}(ArrayT(data_size...), first_dims_n, reserve_front, reserve_back, extendable)
+end
+
+
+function RecyclingArray{T,N}(data::AbstractArray{T, N}; extendable::Bool = (N == 1))
+    A = RecyclingArray{typeof(data),T,N}(size(data)..., extendable = extendable)
+    @assert size(A.data) == size(data)
+    copy!(A.data, data)
+    A
+end
 
 
 @inline size_lastdim{T,N}(A::AbstractArray{T,N}) = size(A, N)
