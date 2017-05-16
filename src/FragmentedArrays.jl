@@ -5,6 +5,9 @@ __precompile__(true)
 module FragmentedArrays
 
 include.([
+    "funcdecls.jl",
+    "util.jl",
+    "recyclingarray.jl",
 ])
 
 end # module
