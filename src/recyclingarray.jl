@@ -167,7 +167,7 @@ function Base.shift!{ArrayT,T}(A::RecyclingArray{ArrayT,T,1})
 end
 
 
-function _append_lastdim_impl!{ArrayT,T,N,M}(A::RecyclingArray{ArrayT,T,N}, B::AbstractArray{T,M}; in_front::Bool = false)
+function _append_lastdim_impl!{ArrayT,T,U,N,M}(A::RecyclingArray{ArrayT,T,N}, B::AbstractArray{U,M}; in_front::Bool = false)
     (M > N) && throw(DimensionMismatch("dimensionality of B is higher than dimensionality of A"))
     size_B = size(B)
     ext_size_B = _extend_tuple(size_B, Val{N}, one(eltype(size_B)))
