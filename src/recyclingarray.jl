@@ -178,10 +178,7 @@ function _append_lastdim_impl!{ArrayT,T,N,M}(A::RecyclingArray{ArrayT,T,N}, B::A
     data = A.data
     data_dest_offs = _recycling_array_idx(data, A.first_dims_n, A.n_free_front, dest_offs)
     sz_l_A_1 = size_lastdim(A) + 1
-    info("length(A) = $(length(A)), A.first_dims_n = $(A.first_dims_n), A.n_free_front = $(A.n_free_front), A.n_free_back = $(A.n_free_back), dest_offs = $dest_offs")
     resize_lastdim!(A, size_lastdim(A) + ext_size_B[N], in_front = in_front)
-    info("length(A) = $(length(A)), A.first_dims_n = $(A.first_dims_n), A.n_free_front = $(A.n_free_front), A.n_free_back = $(A.n_free_back), dest_offs = $dest_offs")
-    info("length(data) = $(length(data)), data_dest_offs = $data_dest_offs, length(B) = $(length(B))")
     copy!(data, data_dest_offs, B, 1, length(B))
     A
 end
