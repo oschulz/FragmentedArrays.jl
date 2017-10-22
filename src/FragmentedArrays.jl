@@ -4,10 +4,8 @@ __precompile__(true)
 
 module FragmentedArrays
 
-include.([
-    "funcdecls.jl",
-    "util.jl",
-    "recyclingarray.jl",
-])
+include("funcdecls.jl")
+include("util.jl")
+include("recyclingarray.jl")
 
 end # module
